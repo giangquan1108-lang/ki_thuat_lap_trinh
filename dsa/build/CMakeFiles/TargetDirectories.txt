@@ -1,3 +1,0 @@
-C:/Users/Admin/quanlythuvien/LibraryManagementSystem/dsa/build/CMakeFiles/dsa_test.dir
-C:/Users/Admin/quanlythuvien/LibraryManagementSystem/dsa/build/CMakeFiles/edit_cache.dir
-C:/Users/Admin/quanlythuvien/LibraryManagementSystem/dsa/build/CMakeFiles/rebuild_cache.dir

@@ -1,13 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "linkedlist.h"
+#include "linkedlist_c.h"
 
-void initList(LinkedList* list) {
+void initList(CLinkedList* list) {
     list->head = NULL;
 }
 
-Node* createNode(int x) {
-    Node* p = (Node*)malloc(sizeof(Node));
+CNode* createNode(int x) {
+    CNode* p = (CNode*)malloc(sizeof(CNode));
 
     if (p == NULL)
         return NULL;
@@ -18,8 +18,8 @@ Node* createNode(int x) {
     return p;
 }
 
-void insertFirst(LinkedList* list, int x) {
-    Node* p = createNode(x);
+void insertFirst(CLinkedList* list, int x) {
+    CNode* p = createNode(x);
 
     if (p == NULL)
         return;
@@ -28,8 +28,8 @@ void insertFirst(LinkedList* list, int x) {
     list->head = p;
 }
 
-void insertLast(LinkedList* list, int x) {
-    Node* p = createNode(x);
+void insertLast(CLinkedList* list, int x) {
+    CNode* p = createNode(x);
 
     if (p == NULL)
         return;
@@ -39,7 +39,7 @@ void insertLast(LinkedList* list, int x) {
         return;
     }
 
-    Node* cur = list->head;
+    CNode* cur = list->head;
 
     while (cur->next != NULL)
         cur = cur->next;
@@ -47,19 +47,19 @@ void insertLast(LinkedList* list, int x) {
     cur->next = p;
 }
 
-void deleteFirst(LinkedList* list) {
+void deleteFirst(CLinkedList* list) {
     if (list->head == NULL)
         return;
 
-    Node* temp = list->head;
+    CNode* temp = list->head;
     list->head = temp->next;
 
     free(temp);
 }
 
-void deleteValue(LinkedList* list, int x) {
-    Node* cur = list->head;
-    Node* prev = NULL;
+void deleteValue(CLinkedList* list, int x) {
+    CNode* cur = list->head;
+    CNode* prev = NULL;
 
     while (cur != NULL && cur->data != x) {
         prev = cur;
@@ -77,8 +77,8 @@ void deleteValue(LinkedList* list, int x) {
     free(cur);
 }
 
-Node* search(LinkedList* list, int x) {
-    Node* cur = list->head;
+CNode* search(CLinkedList* list, int x) {
+    CNode* cur = list->head;
 
     while (cur != NULL) {
         if (cur->data == x)
@@ -90,8 +90,8 @@ Node* search(LinkedList* list, int x) {
     return NULL;
 }
 
-void display(LinkedList* list) {
-    Node* cur = list->head;
+void display(CLinkedList* list) {
+    CNode* cur = list->head;
 
     while (cur != NULL) {
         printf("%d ", cur->data);
@@ -101,11 +101,11 @@ void display(LinkedList* list) {
     printf("\n");
 }
 
-void freeList(LinkedList* list) {
-    Node* cur = list->head;
+void freeList(CLinkedList* list) {
+    CNode* cur = list->head;
 
     while (cur != NULL) {
-        Node* temp = cur;
+        CNode* temp = cur;
         cur = cur->next;
         free(temp);
     }

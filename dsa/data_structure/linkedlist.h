@@ -1,31 +1,104 @@
 #ifndef LINKEDLIST_H
 #define LINKEDLIST_H
 
-typedef struct Node {
-    int data;
-    struct Node* next;
-} Node;
+#include "Node.h"
+#include <cstddef>
+#include <stdexcept>
 
-typedef struct {
-    Node* head;
-} LinkedList;
+template <typename T>
+class LinkedList {
+private:
+    Node<T>* head;
+    Node<T>* tail;
+    size_t size;
 
-void initList(LinkedList* list);
+public:
+    LinkedList() : head(nullptr), tail(nullptr), size(0) {}
 
-Node* createNode(int x);
+    ~LinkedList() {
+        clear();
+    }
 
-void insertFirst(LinkedList* list, int x);
+    // Disable copy constructor and assignment operator to avoid double-free bugs
+    LinkedList(const LinkedList&) = delete;
+    LinkedList& operator=(const LinkedList&) = delete;
 
-void insertLast(LinkedList* list, int x);
+    void clear() {
+        Node<T>* current = head;
+        while (current != nullptr) {
+            Node<T>* temp = current;
+            current = current->next;
+            delete temp;
+        }
+        head = nullptr;
+        tail = nullptr;
+        size = 0;
+    }
 
-void deleteFirst(LinkedList* list);
+    void insertAtHead(const T& val) {
+        Node<T>* newNode = new Node<T>(val, head);
+        head = newNode;
+        if (tail == nullptr) {
+            tail = head;
+        }
+        size++;
+    }
 
-void deleteValue(LinkedList* list, int x);
+    void insertAtTail(const T& val) {
+        Node<T>* newNode = new Node<T>(val);
+        if (tail == nullptr) {
+            head = tail = newNode;
+        } else {
+            tail->next = newNode;
+            tail = newNode;
+        }
+        size++;
+    }
 
-Node* search(LinkedList* list, int x);
+    bool remove(const T& val) {
+        if (head == nullptr) return false;
 
-void display(LinkedList* list);
+        // If the head matches the value
+        if (head->data == val) {
+            Node<T>* temp = head;
+            head = head->next;
+            if (head == nullptr) {
+                tail = nullptr;
+            }
+            delete temp;
+            size--;
+            return true;
+        }
 
-void freeList(LinkedList* list);
+        Node<T>* current = head;
+        while (current->next != nullptr) {
+            if (current->next->data == val) {
+                Node<T>* temp = current->next;
+                current->next = temp->next;
+                if (temp == tail) {
+                    tail = current;
+                }
+                delete temp;
+                size--;
+                return true;
+            }
+            current = current->next;
+        }
 
-#endif
+        return false;
+    }
+
+    Node<T>* getHead() const {
+        return head;
+    }
+
+    size_t getSize() const {
+        return size;
+    }
+
+    bool isEmpty() const {
+        return size == 0;
+    }
+};
+
+#endif // LINKEDLIST_H

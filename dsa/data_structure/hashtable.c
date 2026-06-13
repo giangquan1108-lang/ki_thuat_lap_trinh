@@ -29,6 +29,11 @@ void insert(HashTable *ht, int key, const char *value) {
 
     Node *newNode = (Node *)malloc(sizeof(Node));
 
+    if (newNode == NULL) {
+        printf("Khong du bo nho!\n");
+        return;
+    }
+
     newNode->key = key;
     strcpy(newNode->value, value);
 
