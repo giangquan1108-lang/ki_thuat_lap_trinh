@@ -66,6 +66,7 @@ LibraryManager::LibraryManager() {
     teacher_borrow_limit = 5;
     fine_per_day = 5000.0; // Phạt 5,000 VND một ngày trễ hạn
     data_dir = "../data/";
+    record_id_counter = 1001;
 }
 
 LibraryManager::LibraryManager(const std::string& data_directory) {
@@ -73,6 +74,7 @@ LibraryManager::LibraryManager(const std::string& data_directory) {
     teacher_borrow_limit = 5;
     fine_per_day = 5000.0;
     data_dir = data_directory;
+    record_id_counter = 1001;
 }
 
 // Hàm hủy giải phóng toàn bộ vùng nhớ Heap đã cấp phát động cho các đối tượng
@@ -107,6 +109,11 @@ bool LibraryManager::add_book(Book* book) {
     if (book_index.get(book->id) != nullptr) {
         return false; // Mã sách đã tồn tại
     }
+    // HARDENING: Reject negative quantity
+    if (book->quantity < 0) {
+        std::cout << "Loi: So luong sach khong duoc am!\n";
+        return false;
+    }
     books.insertAtTail(book);
     book_index.put(book->id, book);
     return true;
@@ -115,6 +122,17 @@ bool LibraryManager::add_book(Book* book) {
 bool LibraryManager::remove_book(const std::string& book_id) {
     Book* b = book_index.get(book_id);
     if (b == nullptr) return false;
+
+    // Check if any active borrow record references this book
+    Node<BorrowRecord*>* curr = borrow_records.getHead();
+    while (curr != nullptr) {
+        if (curr->data->book_id == book_id && curr->data->status != "returned") {
+            std::cout << "Loi: Khong the xoa sach nay vi dang co nguoi muon (Phieu: "
+                      << curr->data->record_id << ")!\n";
+            return false;
+        }
+        curr = curr->next;
+    }
 
     book_index.remove(book_id);
     books.remove(b);
@@ -240,6 +258,32 @@ bool LibraryManager::add_reader(Reader* reader) {
     if (reader_index.get(reader->student_id) != nullptr) {
         return false; // Mã bạn đọc đã tồn tại
     }
+    // HARDENING: Validate email format (if not empty)
+    if (!reader->email.empty()) {
+        size_t at_pos = reader->email.find('@');
+        if (at_pos == std::string::npos || at_pos == 0 || at_pos == reader->email.length() - 1) {
+            std::cout << "Loi: Email khong hop le (thieu @ hoac domain)!\n";
+            return false;
+        }
+        // Check for dot after @ in domain
+        if (reader->email.find('.', at_pos + 1) == std::string::npos) {
+            std::cout << "Loi: Email khong hop le (domain thieu dau '.')\n";
+            return false;
+        }
+    }
+    // HARDENING: Validate phone format (if not empty, must be 10 digits numeric)
+    if (!reader->phone.empty()) {
+        if (reader->phone.length() < 10) {
+            std::cout << "Loi: So dien thoai phai co it nhat 10 chu so!\n";
+            return false;
+        }
+        for (char c : reader->phone) {
+            if (c < '0' || c > '9') {
+                std::cout << "Loi: So dien thoai chi duoc chua chu so!\n";
+                return false;
+            }
+        }
+    }
     readers.insertAtTail(reader);
     reader_index.put(reader->student_id, reader);
     return true;
@@ -248,6 +292,17 @@ bool LibraryManager::add_reader(Reader* reader) {
 bool LibraryManager::remove_reader(const std::string& reader_id) {
     Reader* r = reader_index.get(reader_id);
     if (r == nullptr) return false;
+
+    // Check if any active borrow record references this reader
+    Node<BorrowRecord*>* curr = borrow_records.getHead();
+    while (curr != nullptr) {
+        if (curr->data->reader_id == reader_id && curr->data->status != "returned") {
+            std::cout << "Loi: Khong the xoa ban doc nay vi dang muon sach (Phieu: "
+                      << curr->data->record_id << ")! Hay tra sach truoc.\n";
+            return false;
+        }
+        curr = curr->next;
+    }
 
     reader_index.remove(reader_id);
     readers.remove(r);
@@ -343,8 +398,8 @@ bool LibraryManager::borrow_book(const std::string& reader_id, const std::string
         return false;
     }
 
-    // Tạo phiếu mượn mới
-    std::string new_record_id = "REC" + std::to_string(borrow_records.getSize() + 1001);
+    // Tạo phiếu mượn mới với ID không trùng nhờ counter tăng dần
+    std::string new_record_id = "REC" + std::to_string(record_id_counter++);
     BorrowRecord* new_record = new BorrowRecord(new_record_id, book_id, reader_id, borrow_date, due_date);
 
     borrow_records.insertAtTail(new_record);
@@ -515,6 +570,36 @@ void LibraryManager::save_data() const {
 }
 
 void LibraryManager::load_data() {
+    // Clear all existing data before loading to prevent duplicates
+    // 1. Delete all Book objects and clear structures
+    Node<Book*>* curr_book = books.getHead();
+    while (curr_book != nullptr) {
+        delete curr_book->data;
+        curr_book = curr_book->next;
+    }
+    books.clear();
+    book_index.clear();
+
+    // 2. Delete all Reader objects and clear structures
+    Node<Reader*>* curr_reader = readers.getHead();
+    while (curr_reader != nullptr) {
+        delete curr_reader->data;
+        curr_reader = curr_reader->next;
+    }
+    readers.clear();
+    reader_index.clear();
+
+    // 3. Delete all BorrowRecord objects and clear structures
+    Node<BorrowRecord*>* curr_record = borrow_records.getHead();
+    while (curr_record != nullptr) {
+        delete curr_record->data;
+        curr_record = curr_record->next;
+    }
+    borrow_records.clear();
+
+    // Reset counter to default before loading
+    record_id_counter = 1001;
+
     std::string line;
 
     // 1. Đọc danh sách Sách từ file "books.txt"
@@ -591,6 +676,19 @@ void LibraryManager::load_data() {
             rec->late_days = std::stoi(curr_token->data);
 
             borrow_records.insertAtTail(rec);
+
+            // Update counter to ensure next ID will be unique
+            // Extract numeric part from "REC1234" format
+            if (rec->record_id.length() > 3 && rec->record_id.substr(0, 3) == "REC") {
+                try {
+                    int id_num = std::stoi(rec->record_id.substr(3));
+                    if (id_num >= record_id_counter) {
+                        record_id_counter = id_num + 1;
+                    }
+                } catch (...) {
+                    // Ignore malformed IDs
+                }
+            }
         }
         record_file.close();
     }

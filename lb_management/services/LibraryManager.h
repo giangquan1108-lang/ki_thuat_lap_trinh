@@ -26,6 +26,9 @@ private:
     // Path data directory
     std::string data_dir;
 
+    // Record ID counter for unique borrow record IDs
+    int record_id_counter;
+
 public:
     LibraryManager();
 
