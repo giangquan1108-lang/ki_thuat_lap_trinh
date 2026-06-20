@@ -67,15 +67,7 @@ LibraryManagementSystem/
 │   └── data_structure/
 │       ├── Node.h                 # Template Node<T> cho LinkedList
 │       ├── LinkedList.h           # Danh sách liên kết đôi tự cài
-│       ├── HashMap.h              # Bảng băm separate chaining
-│       ├── linkedlist_c.h         # LinkedList bản C (ko xài)
-│       ├── linkedlist.c
-│       ├── hashtable.h            # HashTable bản C (ko xài)
-│       ├── hashtable.c
-│       ├── stack.h                # Stack bản C (ko xài)
-│       ├── stack.c
-│       ├── queue.h                # Queue bản C (ko xài)
-│       └── queue.c
+│       └── HashMap.h              # Bảng băm separate chaining
 └── lb_management/
     ├── models/
     │   ├── Book.h                 # Model: Book
