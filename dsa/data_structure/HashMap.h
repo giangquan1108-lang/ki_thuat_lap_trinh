@@ -12,7 +12,7 @@ struct HashEntry {
     HashEntry() : key(K()), value(V()) {}
     HashEntry(K k, V v) : key(k), value(v) {}
 
-    // Overloaded == operator compares only the keys.
+    // So sánh 2 entry chỉ dựa trên key
     bool operator==(const HashEntry& other) const {
         return this->key == other.key;
     }
@@ -25,7 +25,7 @@ private:
     size_t size;
     size_t capacity;
 
-    // Helper to find the next prime number for rehashing
+    // Tìm số nguyên tố kế tiếp — dùng lúc rehash
     bool isPrime(size_t n) const {
         if (n <= 1) return false;
         if (n <= 3) return true;
@@ -43,11 +43,9 @@ private:
         return n;
     }
 
-    // DJB2 Hash Algorithm for std::string keys
-// Hàm băm phụ trợ dành cho các khóa kiểu số nguyên, ký tự...
+    // Băm cho key kiểu số/char (thuật toán Knuth multiplicative)
 template <typename T>
 size_t hashFunctionHelper(const T& key, size_t cap) const {
-    // Ép kiểu khóa về size_t rồi áp dụng thuật toán băm phân tán Knuth
     size_t hash = static_cast<size_t>(key);
     hash = ((hash >> 16) ^ hash) * 0x45d9f3b;
     hash = ((hash >> 16) ^ hash) * 0x45d9f3b;
@@ -55,7 +53,7 @@ size_t hashFunctionHelper(const T& key, size_t cap) const {
     return hash % cap;
 }
 
-// Hàm băm nạp chồng tối ưu riêng cho chuỗi std::string (Thuật toán DJB2)
+// Băm cho std::string (thuật toán DJB2)
 size_t hashFunctionHelper(const std::string& key, size_t cap) const {
     size_t hash = 5381;
     for (char c : key) {
@@ -64,7 +62,7 @@ size_t hashFunctionHelper(const std::string& key, size_t cap) const {
     return hash % cap;
 }
 
-// Hàm băm chính gọi đến helper phù hợp tùy theo kiểu dữ liệu K
+// Hàm băm chính — tự gọi helper tương ứng với kiểu K
 size_t hashFunction(const K& key, size_t cap) const {
     return hashFunctionHelper(key, cap);
 }
@@ -100,7 +98,7 @@ public:
         delete[] buckets;
     }
 
-    // Disable copy constructor and assignment operator
+    // Cấm copy — né lỗi double-free
     HashMap(const HashMap&) = delete;
     HashMap& operator=(const HashMap&) = delete;
 
@@ -111,7 +109,7 @@ public:
         size = 0;
     }
 
-    // Insert or update key-value pair. Returns true if new element added.
+    // Thêm hoặc cập nhật cặp key-value. true = vừa thêm mới.
     bool put(const K& key, V value) {
         // Auto rehash if load factor >= 0.75
         if ((float)size / capacity >= 0.75f) {
@@ -135,7 +133,7 @@ public:
         return true;
     }
 
-    // Retrieve value by key. Returns default V (e.g. nullptr) if not found.
+    // Lấy value theo key. Ko có thì trả về default của V (vd: nullptr).
     V get(const K& key) const {
         size_t index = hashFunction(key);
         Node<HashEntry<K, V>>* current = buckets[index].getHead();
@@ -149,7 +147,7 @@ public:
         return V(); // default (nullptr for pointer)
     }
 
-    // Remove entry by key
+    // Xóa entry theo key
     bool remove(const K& key) {
         size_t index = hashFunction(key);
         if (buckets[index].remove(HashEntry<K, V>(key, V()))) {
@@ -171,19 +169,17 @@ public:
         return size == 0;
     }
     
-    // Iterate through all values and return them in a newly constructed LinkedList
-    // (Caller must manage the returned list memory)
-    // Nạp tất cả các giá trị trong HashMap vào một LinkedList được truyền vào qua tham chiếu.
-// Giúp quản lý bộ nhớ an toàn hơn, không cần cấp phát động bên trong hàm.
-void getValues(LinkedList<V>& outList) const {
-    for (size_t i = 0; i < capacity; ++i) {
-        Node<HashEntry<K, V>>* current = buckets[i].getHead();
-        while (current != nullptr) {
-            outList.insertAtTail(current->data.value);
-            current = current->next;
+    // Duyệt hết HashMap, dồn tất cả value vô LinkedList truyền từ ngoài vô.
+    // Cách ni an toàn hơn vì ko cấp phát động bên trong hàm.
+    void getValues(LinkedList<V>& outList) const {
+        for (size_t i = 0; i < capacity; ++i) {
+            Node<HashEntry<K, V>>* current = buckets[i].getHead();
+            while (current != nullptr) {
+                outList.insertAtTail(current->data.value);
+                current = current->next;
+            }
         }
     }
-}
 
     size_t getCollisionCount() const {
         size_t collisions = 0;

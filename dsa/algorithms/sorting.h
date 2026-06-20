@@ -4,11 +4,10 @@
 #include <cstddef>
 
 // ============================================================
-// Insertion Sort
+// Insertion Sort — sắp chèn
+// Ngon cho mảng nhỏ (dưới ~50 phần tử)
+// Ổn định: có | Thời gian: O(n^2) | Bộ nhớ: O(1)
 // ============================================================
-// Best for: small datasets (n <= ~50)
-// Stable: yes
-// Time: O(n^2), Space: O(1)
 
 template <typename T>
 void insertionSort(T arr[], size_t size) {
@@ -37,11 +36,10 @@ void insertionSort(T arr[], size_t size, Comparator compareFunc) {
 }
 
 // ============================================================
-// Quick Sort
+// Quick Sort — sắp nhanh
+// Xài cho mảng lớn, đa dụng
+// Ổn định: ko | Thời gian: O(n log n) | Bộ nhớ: O(log n)
 // ============================================================
-// Best for: general-purpose large datasets
-// Stable: no
-// Time: O(n log n) average; Space: O(log n)
 
 namespace detail {
 
@@ -142,11 +140,10 @@ void quickSort(T arr[], size_t size, Comparator compareFunc) {
 }
 
 // ============================================================
-// Merge Sort
+// Merge Sort — sắp trộn
+// Ổn định, hợp với dữ liệu lớn
+// Ổn định: có | Thời gian: O(n log n) | Bộ nhớ: O(n)
 // ============================================================
-// Best for: stable sorting, large datasets
-// Stable: yes
-// Time: O(n log n), Space: O(n)
 
 namespace detail {
 

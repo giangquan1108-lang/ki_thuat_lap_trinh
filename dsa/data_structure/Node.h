@@ -1,6 +1,7 @@
 #ifndef NODE_H
 #define NODE_H
 
+// Con nháy cơ bản cho danh sách liên kết
 template <typename T>
 struct Node {
     T data;

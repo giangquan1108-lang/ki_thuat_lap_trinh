@@ -1,1 +1,54 @@
 ND001|NoDup|X|X|1|0
+BK001|Lap Trinh C++ Can Ban|Nguyen Van An|CNTT|10|15
+BK002|Cau Truc Du Lieu va Giai Thuat|Le Minh Hoang|CNTT|5|28
+BK003|Giai Tich 1|Pham Minh Tuan|Toan Hoc|12|4
+BK004|Dai So Tuyen Tinh|Nguyen Huu Viet|Toan Hoc|8|6
+BK005|Ngon Ngu Lap Trinh Python|Tran Anh Dung|CNTT|15|42
+BK006|Thiet Ke Co So Du Lieu|Hoang Lam Giang|CNTT|6|18
+BK007|Toan Roi Rac|Nguyen Duc Nghia|Toan Hoc|9|22
+BK008|Hoc May Cung Python|Vu Huu Tiep|CNTT|4|35
+BK009|Tri Tue Nhan Tao Can Ban|Nguyen Thanh Thuy|CNTT|0|19
+BK010|Mang May Tinh va Truyen Thong|Nguyen Kim Tuan|CNTT|7|11
+BK011|Tieng Anh Chuyen Nganh CNTT|Le Phi Yen|Ngoai Ngu|14|9
+BK012|Ngu Phap Tieng Anh Nuoc Ngoai|Mai Lan Huong|Ngoai Ngu|20|50
+BK013|Luyen Sieu Tri Nho Tu Vung|Nguyen Anh Duc|Ngoai Ngu|11|31
+BK014|Giao Trinh Tieng Nhat N5|Sasaki Hitomi|Ngoai Ngu|8|15
+BK015|Tu Hoc Tieng Trung Cap Toc|The Anh|Ngoai Ngu|11|8
+BK016|Kinh Te Vi Mo|Phan The Cong|Kinh Te|12|14
+BK017|Kinh Te Vy Mo|Nguyen Van Ngoc|Kinh Te|9|10
+BK018|Quan Tri Hoc Dai Cuong|Nguyen Hoang Viet|Kinh Te|15|13
+BK019|Marketing Can Ban|Philip Kotler|Kinh Te|18|45
+BK020|Tai Chinh Doanh Nghiep|Tran Ngoc Tho|Kinh Te|7|16
+BK021|Dac Nhan Tam|Dale Carnegie|Ky Nang|25|98
+BK022|Quang Ganh Lo Di Va Vui Song|Dale Carnegie|Ky Nang|15|40
+BK023|Nguoi Giau Nhat Thanh Babylon|George S. Clason|Ky Nang|12|55
+BK024|Ranh Gioi Giua Cac The He|Nguyen Phi Van|Ky Nang|10|12
+BK025|Tu Duy Nhanh Va Cham|Daniel Kahneman|Ky Nang|6|27
+BK026|So Do|Vu Trong Phung|Van Hoc|10|33
+BK027|Chi Pheo|Nam Cao|Van Hoc|12|41
+BK028|Tat Den|Ngo Tat To|Van Hoc|8|20
+BK029|Truyen Kieu|Nguyen Du|Van Hoc|15|64
+BK030|Doi Mat|Nam Cao|Van Hoc|7|14
+BK031|Lap Trinh Huong Doi Tuong C++|Tran Minh Thai|CNTT|11|26
+BK032|He Dieu Hanh Linux Can Ban|Nguyen Hong Son|CNTT|8|16
+BK033|Lap Trinh Web voi HTML CSS JS|Pham Huy Hoang|CNTT|11|38
+BK034|Toan Cao Cap A1|Nguyen Dinh Huy|Toan Hoc|14|12
+BK035|Toan Ung Dung Trong Kinh Te|Le Si Dong|Toan Hoc|6|7
+BK036|Tieng Anh IELTS Simon|Simon Corcoran|Ngoai Ngu|9|62
+BK037|Tu Dien Anh Viet|Nhieu Tac Gia|Ngoai Ngu|5|8
+BK038|Khoi Nghiep Tinh Goc|Eric Ries|Kinh Te|11|24
+BK039|Bi Mat Tu Duy Trieu Phu|T. Harv Eker|Ky Nang|17|51
+BK040|Nha Gia Kim|Paulo Coelho|Van Hoc|30|120
+BK041|Doc Vi Vi Bat Ky Ai|David J. Lieberman|Ky Nang|14|34
+BK042|Kinh Dien Ve Khoi Nghiep|Bill Aulet|Kinh Te|8|19
+BK043|Lap Trinh Java Can Ban|Phan Nguyen Do|CNTT|13|21
+BK044|Cau Truc Du Lieu Giai Thuat Java|Robert Lafore|CNTT|5|15
+BK045|Ly Thuyet Do Thi|Nguyen Ba Cuong|Toan Hoc|10|14
+BK046|Tieng Han Tong Hop Can Ban|Cho Hang Rok|Ngoai Ngu|12|22
+BK047|Dat Nuoc Va Con Nguoi Viet Nam|Nhieu Tac Gia|Van Hoc|8|9
+BK048|Dam Bi Ghet|Kishimi Ichiro|Ky Nang|16|44
+BK049|Hieu Ve Trai Tim|Thich Minh Niem|Ky Nang|18|39
+BK050|Mat Biec|Nguyen Nhat Anh|Van Hoc|22|85
+1|aa|aa|aa|5|0
+BK051|Thiet Ke Web ReactJS|Tran Hoa|CNTT|5|0
+ND003|Dac Nhan Tam|Nhieu tac gia|Tam ly|20|0

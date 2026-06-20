@@ -1,8 +1,8 @@
 /**
- * Library Management System - Enhanced Console UI
+ * Hệ Thống Quản Lý Thư Viện — Giao Diện Console Nâng Cấp
  *
- * Business Logic, Data Structure, TXT Storage, Algorithms: UNCHANGED.
- * Only Console UI layer upgraded.
+ * Phần lõi (Business Logic, Cấu trúc dữ liệu, Lưu TXT, Thuật toán): KHÔNG ĐỤNG.
+ * Chỉ tút lại giao diện Console cho đẹp hơn.
  */
 #include "lb_management/services/LibraryManager.h"
 #include "lb_management/models/Book.h"
@@ -18,7 +18,7 @@
 #include <algorithm>
 
 // ==========================================================
-// UI CONSTANTS & HELPERS
+// HẰNG SỐ & HÀM TIỆN ÍCH GIAO DIỆN
 // ==========================================================
 
 const int PAGE_SIZE = 10;
@@ -29,7 +29,7 @@ const int COL_WIDTH_CATEGORY = 14;
 const int COL_WIDTH_QTY = 8;
 const int COL_WIDTH_STATUS = 14;
 
-// Cross-platform clear screen
+// Xóa màn hình — chạy được cả Windows lẫn Linux
 void clear_screen() {
 #ifdef _WIN32
     std::system("cls");
@@ -48,7 +48,7 @@ void print_header(const std::string& title) {
     print_line();
 }
 
-// Message boxes
+// Mấy hàm in thông báo nhanh
 void show_success(const std::string& msg) {
     std::cout << "\n  [THANH CONG] " << msg << "\n";
 }
@@ -63,8 +63,8 @@ void show_info(const std::string& msg) {
 }
 
 // ==========================================================
-// UNIFIED INPUT SYSTEM — all input via getline(), no cin>>
-// No buffer issues, no blocking, no double-Enter bugs.
+// HỆ THỐNG NHẬP LIỆU — mọi thứ qua getline(), bỏ hẳn cin>>
+// Không lo kẹt buffer, không dính lỗi Enter đúp.
 // ==========================================================
 
 void press_enter_to_continue() {
@@ -73,6 +73,7 @@ void press_enter_to_continue() {
     std::getline(std::cin, dummy);
 }
 
+// Đọc chuỗi từ bàn phím, trim 2 đầu, chặn rỗng (trừ khi cho phép)
 std::string read_string(const std::string& prompt, bool allow_empty = false) {
     std::string value;
     while (true) {
@@ -90,6 +91,7 @@ std::string read_string(const std::string& prompt, bool allow_empty = false) {
     }
 }
 
+// Đọc số nguyên, bắt >= min_val
 int read_int(const std::string& prompt, int min_val = 0) {
     while (true) {
         std::cout << "  " << prompt;
@@ -105,6 +107,7 @@ int read_int(const std::string& prompt, int min_val = 0) {
     }
 }
 
+// Đọc lựa chọn menu trong khoảng 0..max_option
 int read_menu_choice(int max_option) {
     while (true) {
         std::cout << "\n  Nhap lua chon (0-" << max_option << "): ";
@@ -118,20 +121,23 @@ int read_menu_choice(int max_option) {
     }
 }
 
+// Hỏi xác nhận y/n
 bool confirm_action(const std::string& prompt) {
     std::string yn = read_string(prompt + " (y/n): ");
     return (yn == "y" || yn == "Y" || yn == "yes" || yn == "YES");
 }
 
 // ==========================================================
-// FORMAT HELPERS
+// HÀM HỖ TRỢ ĐỊNH DẠNG HIỂN THỊ
 // ==========================================================
 
+// Đệm khoảng trắng bên phải
 std::string pad_right(const std::string& s, int w) {
     if ((int)s.length() >= w) return s.substr(0, w);
     return s + std::string(w - s.length(), ' ');
 }
 
+// Canh giữa chuỗi
 std::string pad_center(const std::string& s, int w) {
     if ((int)s.length() >= w) return s.substr(0, w);
     int left = (w - (int)s.length()) / 2;
@@ -139,12 +145,14 @@ std::string pad_center(const std::string& s, int w) {
     return std::string(left, ' ') + s + std::string(right, ' ');
 }
 
+// Nhãn trạng thái sách (còn/hết/sắp hết)
 std::string book_status_label(Book* b) {
     if (b->quantity <= 0) return "Het sach     ";
     if (b->quantity == 1) return "Sap het      ";
     return "Con san       ";
 }
 
+// Nhãn trạng thái bạn đọc (đang hoạt động / bị khóa / đầy limit)
 std::string reader_status_label(Reader* r) {
     if (r->is_blocked) return "Bi KHOA        ";
     int limit = (r->reader_type == "teacher") ? 5 : 3;
@@ -153,9 +161,10 @@ std::string reader_status_label(Reader* r) {
 }
 
 // ==========================================================
-// TABLE DISPLAY HELPERS
+// MẤY HÀM VẼ BẢNG CHO ĐẸP
 // ==========================================================
 
+// In tiêu đề bảng
 void print_table_header(const std::vector<std::string>& cols, const std::vector<int>& widths) {
     std::cout << "  +";
     for (size_t i = 0; i < widths.size(); ++i)
@@ -169,6 +178,7 @@ void print_table_header(const std::vector<std::string>& cols, const std::vector<
     std::cout << "\n";
 }
 
+// In đường kẻ ngăn cách
 void print_table_separator(const std::vector<int>& widths) {
     std::cout << "  +";
     for (size_t i = 0; i < widths.size(); ++i)
@@ -176,6 +186,7 @@ void print_table_separator(const std::vector<int>& widths) {
     std::cout << "\n";
 }
 
+// In một dòng dữ liệu trong bảng
 void print_table_row(const std::vector<std::string>& row, const std::vector<int>& widths) {
     std::cout << "  |";
     for (size_t i = 0; i < row.size(); ++i)
@@ -183,6 +194,7 @@ void print_table_row(const std::vector<std::string>& row, const std::vector<int>
     std::cout << "\n";
 }
 
+// In chân bảng
 void print_table_footer(const std::vector<int>& widths) {
     std::cout << "  +";
     for (size_t i = 0; i < widths.size(); ++i)
@@ -191,7 +203,7 @@ void print_table_footer(const std::vector<int>& widths) {
 }
 
 // ==========================================================
-// DASHBOARD
+// MÀN HÌNH CHÍNH (DASHBOARD)
 // ==========================================================
 
 void show_dashboard(LibraryManager& mgr) {
@@ -202,13 +214,10 @@ void show_dashboard(LibraryManager& mgr) {
     int active_borrows = 0;
     int overdue_count = 0;
 
-    // Count from records
-    // We iterate borrowed_records via the manager's display_all_records
-    // Since we can't directly access the list, we use get_borrowing_count
+    // Đếm số phiếu đang mượn
     active_borrows = mgr.get_borrowing_count();
 
-    // Count overdue - we need to scan records
-    // show_overdue_books prints to cout, we'll just print the header line
+    // Đếm quá hạn thì phải duyệt qua record — nhưng thôi để menu riêng
     std::cout << "\n";
     std::cout << "  Sach trong thu vien:     " << std::setw(6) << total_books << "\n";
     std::cout << "  Ban doc dang ky:         " << std::setw(6) << total_readers << "\n";
@@ -227,29 +236,13 @@ void show_dashboard(LibraryManager& mgr) {
 }
 
 // ==========================================================
-// BOOK MENU (Enhanced)
+// MENU QUẢN LÝ SÁCH (ĐÃ TÚT LẠI)
 // ==========================================================
 
+// Hiển thị danh sách sách (tạm thời xài luôn API có sẵn, chưa phân trang)
 void show_books_table_paged(LibraryManager& mgr) {
-    // Collect all books into vector for paging
-    std::vector<Book*> book_list;
-    // Accessing private data... we need to use public API only.
-    // We'll call display_all_books with paging logic built in here.
-    // But the manager already has display_all_books() which prints all.
-    // We need to enhance it with paging here at UI level.
-    // Since LinkedList is private, we must iterate differently.
-    // Use the existing method but intercept output? No - need direct access.
-    // We'll create a helper that uses find_book? No, that's O(n^2).
-    // Best approach: We'll display with simple paging by capturing IDs
-    // We know books are in the linked list. We need access.
-    // Actually, we can use get_book_count() and iterate from 0...
-    // No, LinkedList has getHead() but it's private to manager.
-    // Simplest: just display all - but show count and sections.
-    // For full paging, we'd need to add an API to LibraryManager.
-    // BUT constraint says NO change to business logic.
-    // Let's use what we have: display_all_books() is the only option.
-    // We'll still format nicely but just call display_all_books() for now.
-    // The enhanced table printing will happen inside display functions.
+    // Muốn phân trang thì phải vọc vô LinkedList nhưng nó private mất rồi.
+    // Cho nên đành gọi display_all_books() chơi hết một lượt.
     mgr.display_all_books();
 }
 
@@ -405,7 +398,7 @@ void book_menu(LibraryManager& mgr) {
 }
 
 // ==========================================================
-// READER MENU (Enhanced)
+// MENU QUẢN LÝ BẠN ĐỌC (ĐÃ TÚT LẠI)
 // ==========================================================
 
 void reader_menu(LibraryManager& mgr) {
@@ -548,7 +541,7 @@ void reader_menu(LibraryManager& mgr) {
 }
 
 // ==========================================================
-// BORROW MENU (Enhanced)
+// MENU MƯỢN / TRẢ SÁCH (ĐÃ TÚT LẠI)
 // ==========================================================
 
 void borrow_menu(LibraryManager& mgr) {
@@ -580,7 +573,7 @@ void borrow_menu(LibraryManager& mgr) {
                 std::string rid = read_string("Ma ban doc: ");
                 std::string bid = read_string("Ma sach: ");
                 
-                // Preview before borrow
+                // Xem trước thông tin trước khi mượn
                 Reader* r = mgr.find_reader(rid);
                 Book* b = mgr.find_book(bid);
                 if (r != nullptr && b != nullptr) {
@@ -612,7 +605,7 @@ void borrow_menu(LibraryManager& mgr) {
                 std::string rec_id = read_string("Ma phieu muon: ");
                 std::string rdate = read_string("Ngay tra (DD/MM/YYYY): ");
                 if (mgr.return_book(rec_id, rdate)) {
-                    // Success message already in business logic
+                    // Bên business logic đã tự in thông báo kết quả rồi
                 }
                 press_enter_to_continue();
             }
@@ -650,7 +643,7 @@ void borrow_menu(LibraryManager& mgr) {
 }
 
 // ==========================================================
-// STATISTICS MENU (Enhanced)
+// MENU THỐNG KÊ & BÁO CÁO (ĐÃ TÚT LẠI)
 // ==========================================================
 
 void statistics_menu(LibraryManager& mgr) {
@@ -658,7 +651,7 @@ void statistics_menu(LibraryManager& mgr) {
         clear_screen();
         print_header("THONG KE & BAO CAO");
         
-        // Live statistics
+        // Thống kê nhanh
         size_t books = mgr.get_book_count();
         size_t readers = mgr.get_reader_count();
         size_t records = mgr.get_record_count();
@@ -722,13 +715,13 @@ void statistics_menu(LibraryManager& mgr) {
 }
 
 // ==========================================================
-// MAIN
+// CHƯƠNG TRÌNH CHÍNH
 // ==========================================================
 
 int main() {
     LibraryManager manager("./data/");
 
-    // Startup - load data
+    // Khởi động — nạp dữ liệu từ file
     manager.load_data();
 
     while (true) {
@@ -736,7 +729,7 @@ int main() {
         int choice = read_menu_choice(4);
 
         if (choice == 0) {
-            // Save and exit
+            // Lưu rồi thoát
             manager.save_data();
             clear_screen();
             print_header("TAM BIET!");
@@ -746,7 +739,7 @@ int main() {
             break;
         }
         else if (choice == 9) {
-            // Save only
+            // Chỉ lưu thôi, ko thoát
             manager.save_data();
             show_success("Da luu du lieu thanh cong!");
             press_enter_to_continue();

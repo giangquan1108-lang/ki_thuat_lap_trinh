@@ -19,10 +19,11 @@ public:
         clear();
     }
 
-    // Disable copy constructor and assignment operator to avoid double-free bugs
+    // Tắt copy constructor với assignment để né lỗi double-free
     LinkedList(const LinkedList&) = delete;
     LinkedList& operator=(const LinkedList&) = delete;
 
+    // Dọn sạch danh sách, giải phóng từng Node
     void clear() {
         Node<T>* current = head;
         while (current != nullptr) {
@@ -58,7 +59,7 @@ public:
     bool remove(const T& val) {
         if (head == nullptr) return false;
 
-        // If the head matches the value
+        // Head khớp thì xóa luôn
         if (head->data == val) {
             Node<T>* temp = head;
             head = head->next;

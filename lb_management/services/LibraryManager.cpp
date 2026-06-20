@@ -6,10 +6,10 @@
 #include <iostream>
 
 // ==========================================
-// CÁC HÀM TIỆN ÍCH PHỤ TRỢ (HELPER FUNCTIONS)
+// MẤY HÀM TIỆN ÍCH LẶT VẶT
 // ==========================================
 
-// Hàm tự chế để tách chuỗi bằng ký tự '|' và nạp vào LinkedList
+// Cắt chuỗi theo ký tự delimiter, tống vô LinkedList
 void split_string(const std::string& str, char delimiter, LinkedList<std::string>& tokens) {
     std::string token = "";
     for (char c : str) {
@@ -20,22 +20,22 @@ void split_string(const std::string& str, char delimiter, LinkedList<std::string
             token += c;
         }
     }
-    tokens.insertAtTail(token); // Nạp phần tử cuối cùng
+    tokens.insertAtTail(token); // Nhét nốt khúc cuối
 }
 
-// Kiểm tra năm nhuận
+// Check năm nhuận (tháng 2 có 29 ngày ko)
 bool is_leap_year(int y) {
     return (y % 4 == 0 && y % 100 != 0) || (y % 400 == 0);
 }
 
-// Lấy số ngày trong tháng
+// Đếm số ngày trong 1 tháng
 int get_days_in_month(int m, int y) {
     if (m == 2) return is_leap_year(y) ? 29 : 28;
     if (m == 4 || m == 6 || m == 9 || m == 11) return 30;
     return 31;
 }
 
-// Chuyển đổi ngày định dạng DD/MM/YYYY sang số ngày tuyệt đối tính từ năm 1
+// Đổi ngày DD/MM/YYYY ra số ngày tuyệt đối (tính từ năm số 1)
 int date_to_absolute_days(const std::string& date_str) {
     if (date_str.length() < 10) return 0;
     int d = std::stoi(date_str.substr(0, 2));
@@ -52,23 +52,25 @@ int date_to_absolute_days(const std::string& date_str) {
     return total_days;
 }
 
-// Tính khoảng cách giữa hai ngày (ngày 2 - ngày 1)
+// Tính khoảng cách ngày (date2 - date1)
 int calculate_date_difference(const std::string& date1, const std::string& date2) {
     return date_to_absolute_days(date2) - date_to_absolute_days(date1);
 }
 
 // ==========================================
-// TRIỂN KHAI CÁC PHƯƠNG THỨC LỚP LIBRARYMANAGER
+// CÀI ĐẶT CÁC PHƯƠNG THỨC LIBRARYMANAGER
 // ==========================================
 
+// Dựng manager với tham số mặc định
 LibraryManager::LibraryManager() {
     student_borrow_limit = 3;
     teacher_borrow_limit = 5;
-    fine_per_day = 5000.0; // Phạt 5,000 VND một ngày trễ hạn
+    fine_per_day = 5000.0; // 5k VND / ngày trễ
     data_dir = "../data/";
     record_id_counter = 1001;
 }
 
+// Dựng manager với đường dẫn data tự chọn
 LibraryManager::LibraryManager(const std::string& data_directory) {
     student_borrow_limit = 3;
     teacher_borrow_limit = 5;
@@ -77,23 +79,23 @@ LibraryManager::LibraryManager(const std::string& data_directory) {
     record_id_counter = 1001;
 }
 
-// Hàm hủy giải phóng toàn bộ vùng nhớ Heap đã cấp phát động cho các đối tượng
+// Hủy: gỡ hết con trỏ đã cấp trên Heap, tránh rò rỉ bộ nhớ
 LibraryManager::~LibraryManager() {
-    // Giải phóng Sách
+    // Xóa sạch Sách
     Node<Book*>* curr_book = books.getHead();
     while (curr_book != nullptr) {
         delete curr_book->data;
         curr_book = curr_book->next;
     }
 
-    // Giải phóng Bạn đọc
+    // Xóa sạch Bạn đọc
     Node<Reader*>* curr_reader = readers.getHead();
     while (curr_reader != nullptr) {
         delete curr_reader->data;
         curr_reader = curr_reader->next;
     }
 
-    // Giải phóng Phiếu mượn
+    // Xóa sạch Phiếu mượn
     Node<BorrowRecord*>* curr_record = borrow_records.getHead();
     while (curr_record != nullptr) {
         delete curr_record->data;
@@ -102,14 +104,14 @@ LibraryManager::~LibraryManager() {
 }
 
 // ==========================================
-// BIÊN MỤC SÁCH
+// QUẢN LÝ SÁCH
 // ==========================================
 
 bool LibraryManager::add_book(Book* book) {
     if (book_index.get(book->id) != nullptr) {
-        return false; // Mã sách đã tồn tại
+        return false; // Trùng mã sách rồi
     }
-    // HARDENING: Reject negative quantity
+    // Chặn số lượng âm
     if (book->quantity < 0) {
         std::cout << "Loi: So luong sach khong duoc am!\n";
         return false;
@@ -123,7 +125,7 @@ bool LibraryManager::remove_book(const std::string& book_id) {
     Book* b = book_index.get(book_id);
     if (b == nullptr) return false;
 
-    // Check if any active borrow record references this book
+    // Duyệt coi có ai đang mượn cuốn này ko
     Node<BorrowRecord*>* curr = borrow_records.getHead();
     while (curr != nullptr) {
         if (curr->data->book_id == book_id && curr->data->status != "returned") {
@@ -145,6 +147,7 @@ bool LibraryManager::update_book(const std::string& book_id, const std::string& 
     Book* b = book_index.get(book_id);
     if (b == nullptr) return false;
 
+    // Chỉ cập nhật field nào có truyền vô (ko rỗng / ko âm)
     if (!title.empty()) b->title = title;
     if (!author.empty()) b->author = author;
     if (!category.empty()) b->category = category;
@@ -163,7 +166,7 @@ void LibraryManager::search_book_by_title(const std::string& title) const {
         return;
     }
 
-    // Chuyển LinkedList sang mảng tạm để dùng thuật toán tìm kiếm từ dsa/algorithms/searching.h
+    // Dồn LinkedList ra mảng tạm để xài thuật toán tìm kiếm bên dsa
     Book** arr = new Book*[sz];
     Node<Book*>* curr = books.getHead();
     size_t idx = 0;
@@ -172,23 +175,23 @@ void LibraryManager::search_book_by_title(const std::string& title) const {
         curr = curr->next;
     }
 
-    // Tạo Book tạm chỉ chứa title để làm target cho linearSearch với custom comparator
+    // Dựng sách giả chỉ chứa tên để đưa vô linearSearch
     Book targetBook("", title, "", "", 0);
     Book* target = &targetBook;
 
-    // Custom match function: kiểm tra title của sách có chứa từ khóa tìm kiếm không
+    // Hàm so trùng: kiểm tra tên sách có chứa từ khóa ko
     auto matchTitle = [](Book* a, Book* b) -> bool {
         return a->title.find(b->title) != std::string::npos;
     };
 
-    // Gọi linearSearch từ searching.h để tìm bản ghi đầu tiên khớp
+    // Gọi linearSearch tìm bản ghi đầu tiên trùng
     int firstMatch = linearSearch(arr, sz, target, matchTitle);
 
     std::cout << "\n--- KET QUA TIM KIEM SACH ---\n";
     if (firstMatch == -1) {
         std::cout << "Khong tim thay sach nao co ten chua tu khoa: " << title << "\n";
     } else {
-        // Duyệt qua toàn bộ mảng để in tất cả kết quả khớp
+        // Quét lại hết mảng để in tất cả kết quả khớp
         for (size_t i = 0; i < sz; ++i) {
             if (matchTitle(arr[i], target)) {
                 arr[i]->display_info();
@@ -229,8 +232,7 @@ void LibraryManager::show_top_books(int count) const {
         curr = curr->next;
     }
 
-    // Sắp xếp giảm dần theo borrow_count bằng thuật toán Quick Sort từ dsa/algorithms/sorting.h
-    // Comparator: a đứng trước b khi a->borrow_count > b->borrow_count (giảm dần)
+    // QuickSort giảm dần theo số lượt mượn
     auto cmpDesc = [](Book* a, Book* b) -> bool {
         return a->borrow_count > b->borrow_count;
     };
@@ -256,22 +258,22 @@ size_t LibraryManager::get_book_count() const {
 
 bool LibraryManager::add_reader(Reader* reader) {
     if (reader_index.get(reader->student_id) != nullptr) {
-        return false; // Mã bạn đọc đã tồn tại
+        return false; // Trùng mã
     }
-    // HARDENING: Validate email format (if not empty)
+    // Validate email (nếu có nhập)
     if (!reader->email.empty()) {
         size_t at_pos = reader->email.find('@');
         if (at_pos == std::string::npos || at_pos == 0 || at_pos == reader->email.length() - 1) {
             std::cout << "Loi: Email khong hop le (thieu @ hoac domain)!\n";
             return false;
         }
-        // Check for dot after @ in domain
+        // Phải có dấu chấm sau @
         if (reader->email.find('.', at_pos + 1) == std::string::npos) {
             std::cout << "Loi: Email khong hop le (domain thieu dau '.')\n";
             return false;
         }
     }
-    // HARDENING: Validate phone format (if not empty, must be 10 digits numeric)
+    // Validate số điện thoại (nếu có nhập, phải >= 10 số, toàn chữ số)
     if (!reader->phone.empty()) {
         if (reader->phone.length() < 10) {
             std::cout << "Loi: So dien thoai phai co it nhat 10 chu so!\n";
@@ -293,7 +295,7 @@ bool LibraryManager::remove_reader(const std::string& reader_id) {
     Reader* r = reader_index.get(reader_id);
     if (r == nullptr) return false;
 
-    // Check if any active borrow record references this reader
+    // Cấm xóa nếu đang mượn sách
     Node<BorrowRecord*>* curr = borrow_records.getHead();
     while (curr != nullptr) {
         if (curr->data->reader_id == reader_id && curr->data->status != "returned") {
@@ -317,7 +319,7 @@ Reader* LibraryManager::find_reader(const std::string& reader_id) const {
 bool LibraryManager::block_reader(const std::string& reader_id) {
     Reader* r = reader_index.get(reader_id);
     if (r == nullptr) return false;
-    if (r->is_blocked) return false; // Already blocked
+    if (r->is_blocked) return false; // Khóa rồi, khỏi khóa nữa
     r->block_reader();
     return true;
 }
@@ -325,7 +327,7 @@ bool LibraryManager::block_reader(const std::string& reader_id) {
 bool LibraryManager::unblock_reader(const std::string& reader_id) {
     Reader* r = reader_index.get(reader_id);
     if (r == nullptr) return false;
-    if (!r->is_blocked) return false; // Already unblocked
+    if (!r->is_blocked) return false; // Đang mở mà đòi mở nữa
     r->unblock_reader();
     return true;
 }
@@ -350,7 +352,7 @@ size_t LibraryManager::get_reader_count() const {
 }
 
 // ==========================================
-// NGHIỆP VỤ MƯỢN / TRẢ
+// NGHIỆP VỤ MƯỢN / TRẢ SÁCH
 // ==========================================
 
 bool LibraryManager::borrow_book(const std::string& reader_id, const std::string& book_id,
@@ -377,7 +379,7 @@ bool LibraryManager::borrow_book(const std::string& reader_id, const std::string
         return false;
     }
 
-    // Kiểm tra trễ hạn nợ chưa trả
+    // Quét coi bạn đọc có nợ sách quá hạn chưa trả ko
     Node<BorrowRecord*>* curr = borrow_records.getHead();
     while (curr != nullptr) {
         BorrowRecord* rec = curr->data;
@@ -391,14 +393,14 @@ bool LibraryManager::borrow_book(const std::string& reader_id, const std::string
         curr = curr->next;
     }
 
-    // Kiểm tra hạn mức mượn
+    // Check giới hạn mượn
     int limit = (r->reader_type == "teacher") ? teacher_borrow_limit : student_borrow_limit;
     if (!r->can_borrow(limit)) {
         std::cout << "Loi: Ban doc da dat den han muc muon toi da cua minh (" << limit << " cuon)!\n";
         return false;
     }
 
-    // Tạo phiếu mượn mới với ID không trùng nhờ counter tăng dần
+    // Tạo phiếu mượn mới, ID tự sinh từ counter
     std::string new_record_id = "REC" + std::to_string(record_id_counter++);
     BorrowRecord* new_record = new BorrowRecord(new_record_id, book_id, reader_id, borrow_date, due_date);
 
@@ -448,9 +450,11 @@ bool LibraryManager::return_book(const std::string& record_id, const std::string
         std::cout << "Tra sach dung han. Cam on ban doc!\n";
     }
 
+    // Cộng lại 1 cuốn vô kho
     Book* b = find_book(target_record->book_id);
     if (b != nullptr) b->update_quantity(1);
 
+    // Giảm số sách đang mượn của bạn đọc
     Reader* r = find_reader(target_record->reader_id);
     if (r != nullptr) r->decrease_borrow_count();
 
@@ -523,11 +527,11 @@ int LibraryManager::get_borrowing_count() const {
 }
 
 // ==========================================================
-// ĐỌC VÀ GHI FILE TEXT PHÂN TÁCH BẰNG DẤU ĐỨNG "|" (Pipe-Delimited)
+// ĐỌC / GHI FILE TEXT (PHÂN CÁCH BỞI DẤU "|")
 // ==========================================================
 
 void LibraryManager::save_data() const {
-    // 1. Lưu danh sách Sách
+    // 1. Ghi danh sách Sách
     std::ofstream book_file(data_dir + "books.txt");
     if (book_file.is_open()) {
         Node<Book*>* curr = books.getHead();
@@ -540,7 +544,7 @@ void LibraryManager::save_data() const {
         book_file.close();
     }
 
-    // 2. Lưu danh sách Bạn đọc
+    // 2. Ghi danh sách Bạn đọc
     std::ofstream reader_file(data_dir + "readers.txt");
     if (reader_file.is_open()) {
         Node<Reader*>* curr = readers.getHead();
@@ -554,7 +558,7 @@ void LibraryManager::save_data() const {
         reader_file.close();
     }
 
-    // 3. Lưu danh sách Phiếu mượn
+    // 3. Ghi danh sách Phiếu mượn
     std::ofstream record_file(data_dir + "records.txt");
     if (record_file.is_open()) {
         Node<BorrowRecord*>* curr = borrow_records.getHead();
@@ -570,8 +574,8 @@ void LibraryManager::save_data() const {
 }
 
 void LibraryManager::load_data() {
-    // Clear all existing data before loading to prevent duplicates
-    // 1. Delete all Book objects and clear structures
+    // Dọn sạch dữ liệu cũ trước khi load — tránh trùng lặp
+    // 1. Xóa hết Book
     Node<Book*>* curr_book = books.getHead();
     while (curr_book != nullptr) {
         delete curr_book->data;
@@ -580,7 +584,7 @@ void LibraryManager::load_data() {
     books.clear();
     book_index.clear();
 
-    // 2. Delete all Reader objects and clear structures
+    // 2. Xóa hết Reader
     Node<Reader*>* curr_reader = readers.getHead();
     while (curr_reader != nullptr) {
         delete curr_reader->data;
@@ -589,7 +593,7 @@ void LibraryManager::load_data() {
     readers.clear();
     reader_index.clear();
 
-    // 3. Delete all BorrowRecord objects and clear structures
+    // 3. Xóa hết BorrowRecord
     Node<BorrowRecord*>* curr_record = borrow_records.getHead();
     while (curr_record != nullptr) {
         delete curr_record->data;
@@ -597,12 +601,12 @@ void LibraryManager::load_data() {
     }
     borrow_records.clear();
 
-    // Reset counter to default before loading
+    // Reset counter về mốc
     record_id_counter = 1001;
 
     std::string line;
 
-    // 1. Đọc danh sách Sách từ file "books.txt"
+    // 1. Load Sách từ file books.txt
     std::ifstream book_file(data_dir + "books.txt");
     if (book_file.is_open()) {
         while (std::getline(book_file, line)) {
@@ -627,7 +631,7 @@ void LibraryManager::load_data() {
         book_file.close();
     }
 
-    // 2. Đọc danh sách Bạn đọc từ file "readers.txt"
+    // 2. Load Bạn đọc từ file readers.txt
     std::ifstream reader_file(data_dir + "readers.txt");
     if (reader_file.is_open()) {
         while (std::getline(reader_file, line)) {
@@ -653,7 +657,7 @@ void LibraryManager::load_data() {
         reader_file.close();
     }
 
-    // 3. Đọc danh sách Phiếu mượn từ file "records.txt"
+    // 3. Load Phiếu mượn từ file records.txt
     std::ifstream record_file(data_dir + "records.txt");
     if (record_file.is_open()) {
         while (std::getline(record_file, line)) {
@@ -677,8 +681,8 @@ void LibraryManager::load_data() {
 
             borrow_records.insertAtTail(rec);
 
-            // Update counter to ensure next ID will be unique
-            // Extract numeric part from "REC1234" format
+            // Canh lại counter để lần sau sinh ID ko bị đụng
+            // Bóc phần số từ "REC1234"
             if (rec->record_id.length() > 3 && rec->record_id.substr(0, 3) == "REC") {
                 try {
                     int id_num = std::stoi(rec->record_id.substr(3));
@@ -686,7 +690,7 @@ void LibraryManager::load_data() {
                         record_id_counter = id_num + 1;
                     }
                 } catch (...) {
-                    // Ignore malformed IDs
+                    // Bỏ qua mấy ID lỗi
                 }
             }
         }
@@ -695,7 +699,7 @@ void LibraryManager::load_data() {
 }
 
 // ==========================================================
-// CÁC HÀM THỐNG KÊ BÁO CÁO
+// THỐNG KÊ & BÁO CÁO
 // ==========================================================
 
 void LibraryManager::generate_report() const {
@@ -716,7 +720,7 @@ void LibraryManager::generate_report() const {
     }
     std::cout << "So sach dang duoc muon thuc te: " << borrowing_count << "\n";
 
-    // Count available books
+    // Đếm sách còn trong kho
     int available = 0;
     Node<Book*>* curr_book = books.getHead();
     while (curr_book != nullptr) {

@@ -9,14 +9,14 @@ public:
     std::string record_id;
     std::string book_id;
     std::string reader_id;
-    std::string borrow_date;      // Định dạng: DD/MM/YYYY
-    std::string due_date;         // Hạn trả: DD/MM/YYYY
-    std::string return_date;      // Ngày trả thực tế (Rỗng nếu chưa trả)
+    std::string borrow_date;      // ngày mượn, dạng DD/MM/YYYY
+    std::string due_date;         // hạn phải trả
+    std::string return_date;      // ngày trả thực tế (rỗng = chưa trả)
     std::string status;           // "borrowing", "returned", "overdue"
     double fine;
     int late_days;
 
-    // Constructors
+    // Khởi tạo phiếu rỗng
     BorrowRecord() : record_id(""), book_id(""), reader_id(""), borrow_date(""), 
                      due_date(""), return_date(""), status("borrowing"), fine(0.0), late_days(0) {}
 
@@ -24,7 +24,7 @@ public:
         : record_id(rec_id), book_id(b_id), reader_id(r_id), borrow_date(b_date), 
           due_date(d_date), return_date(""), status("borrowing"), fine(0.0), late_days(0) {}
 
-    // Methods
+    // In nội dung phiếu mượn
     void display_info() const {
         std::cout << "Phieu: " << record_id << " | Doc gia: " << reader_id 
                   << " | Sach: " << book_id << " | Ngay muon: " << borrow_date 
@@ -44,9 +44,10 @@ public:
     }
 
     void calculate_late_days(const std::string& current_date) {
-        // Tự viết hàm chuyển DD/MM/YYYY sang số ngày tuyệt đối để tính độ chênh lệch
+        // Đổi ngày DD/MM/YYYY ra số ngày tuyệt đối rồi trừ cho nhau
     }
 
+    // Tính tiền phạt dựa trên số ngày trễ
     void calculate_fine(double fine_per_day) {
         if (late_days > 0) {
             fine = late_days * fine_per_day;
@@ -55,11 +56,13 @@ public:
         }
     }
 
+    // Check quá hạn chưa
     bool is_overdue(const std::string& current_date) {
-        // So sánh hạn trả với ngày hiện tại
+        // So hạn trả với ngày hiện tại
         return false; 
     }
 
+    // Xuất ra JSON thô để lưu
     std::string to_json_string() const {
         return "{\"record_id\":\"" + record_id + "\",\"book_id\":\"" + book_id + 
                "\",\"reader_id\":\"" + reader_id + "\",\"borrow_date\":\"" + borrow_date + 
@@ -68,8 +71,9 @@ public:
                ",\"late_days\":" + std::to_string(late_days) + "}";
     }
 
+    // Parse lại từ JSON
     void from_json_string(const std::string& json_str) {
-        // Tự bóc tách chuỗi JSON
+        // Mổ xẻ chuỗi JSON thủ công
     }
 };
 

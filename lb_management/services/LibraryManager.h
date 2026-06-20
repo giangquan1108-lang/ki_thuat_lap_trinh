@@ -9,34 +9,34 @@
 
 class LibraryManager {
 private:
-    // Kho dữ liệu lưu trữ đối tượng thực tế dưới dạng con trỏ để quản lý bộ nhớ an toàn
+    // Kho chứa toàn bộ object dạng con trỏ (LinkedList giữ quyền sở hữu)
     LinkedList<Book*> books;
     LinkedList<Reader*> readers;
     LinkedList<BorrowRecord*> borrow_records;
 
-    // Hash index giúp tìm kiếm dữ liệu siêu nhanh với độ phức tạp O(1)
+    // Bảng băm index theo ID, tìm O(1), ko sở hữu con trỏ (chỉ tham chiếu)
     HashMap<std::string, Book*> book_index;
     HashMap<std::string, Reader*> reader_index;
 
-    // Các tham số cấu hình hệ thống
+    // Tham số cấu hình
     int student_borrow_limit;
     int teacher_borrow_limit;
     double fine_per_day;
 
-    // Path data directory
+    // Thư mục chứa file dữ liệu
     std::string data_dir;
 
-    // Record ID counter for unique borrow record IDs
+    // Bộ đếm tự tăng để sinh mã phiếu mượn không trùng
     int record_id_counter;
 
 public:
     LibraryManager();
 
-    // Constructor with custom data directory
+    // Dựng manager với thư mục data tùy chỉnh
     LibraryManager(const std::string& data_directory);
     ~LibraryManager();
 
-    // Biên mục Sách
+    // ---------- Quản lý Sách ----------
     bool add_book(Book* book);
     bool remove_book(const std::string& book_id);
     bool update_book(const std::string& book_id, const std::string& title,
@@ -47,7 +47,7 @@ public:
     void show_top_books(int count = 5) const;
     size_t get_book_count() const;
 
-    // Quản lý Bạn đọc
+    // ---------- Quản lý Bạn đọc ----------
     bool add_reader(Reader* reader);
     bool remove_reader(const std::string& reader_id);
     Reader* find_reader(const std::string& reader_id) const;
@@ -56,7 +56,7 @@ public:
     void display_all_readers() const;
     size_t get_reader_count() const;
 
-    // Nghiệp vụ Mượn / Trả
+    // ---------- Nghiệp vụ Mượn / Trả ----------
     bool borrow_book(const std::string& reader_id, const std::string& book_id,
                      const std::string& borrow_date, const std::string& due_date);
     bool return_book(const std::string& record_id, const std::string& return_date);
@@ -65,11 +65,11 @@ public:
     void show_overdue_books(const std::string& current_date) const;
     size_t get_record_count() const;
 
-    // Đọc ghi File TXT
+    // ---------- Đọc / Ghi file TXT ----------
     void load_data();
     void save_data() const;
 
-    // Báo cáo & Thống kê
+    // ---------- Thống kê & Báo cáo ----------
     void generate_report() const;
     int get_borrowing_count() const;
 };

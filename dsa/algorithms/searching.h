@@ -4,10 +4,10 @@
 #include <cstddef>
 
 // ============================================================
-// Linear Search
+// Linear Search — tìm tuần tự
 // ============================================================
 
-// Returns index of first match, or -1 if not found
+// Trả index đầu tiên khớp, -1 nếu ko thấy
 template <typename T>
 int linearSearch(const T arr[], size_t size, const T& target) {
     for (size_t i = 0; i < size; ++i) {
@@ -18,7 +18,7 @@ int linearSearch(const T arr[], size_t size, const T& target) {
     return -1;
 }
 
-// Overload with custom comparator
+// Overload: tự truyền hàm so sánh riêng
 template <typename T, typename Comparator>
 int linearSearch(const T arr[], size_t size, const T& target, Comparator matchFunc) {
     for (size_t i = 0; i < size; ++i) {
@@ -29,7 +29,7 @@ int linearSearch(const T arr[], size_t size, const T& target, Comparator matchFu
     return -1;
 }
 
-// Find all matches, stores indices in result array
+// Tìm hết tất cả vị trí khớp, lưu vô mảng kết quả
 template <typename T>
 size_t linearSearchAll(const T arr[], size_t size, const T& target,
                        int result[], size_t maxResults) {
@@ -43,10 +43,10 @@ size_t linearSearchAll(const T arr[], size_t size, const T& target,
 }
 
 // ============================================================
-// Binary Search
+// Binary Search — tìm nhị phân
 // ============================================================
 
-// Returns index of target, or -1 if not found
+// Trả vị trí tìm thấy, -1 nếu ko có
 template <typename T>
 int binarySearch(const T arr[], size_t size, const T& target) {
     if (size == 0) return -1;
@@ -68,7 +68,7 @@ int binarySearch(const T arr[], size_t size, const T& target) {
     return -1;
 }
 
-// Overload with custom comparator
+// Overload: tự truyền hàm so sánh riêng
 template <typename T, typename Comparator>
 int binarySearch(const T arr[], size_t size, const T& target, Comparator compareFunc) {
     if (size == 0) return -1;
@@ -87,7 +87,7 @@ int binarySearch(const T arr[], size_t size, const T& target, Comparator compare
     return -1;
 }
 
-// Binary search for first occurrence
+// Tìm vị trí xuất hiện đầu tiên của target
 template <typename T>
 int binarySearchFirst(const T arr[], size_t size, const T& target) {
     if (size == 0) return -1;
@@ -110,7 +110,7 @@ int binarySearchFirst(const T arr[], size_t size, const T& target) {
     return result;
 }
 
-// Binary search for last occurrence
+// Tìm vị trí xuất hiện cuối cùng của target
 template <typename T>
 int binarySearchLast(const T arr[], size_t size, const T& target) {
     if (size == 0) return -1;
